@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { checkPasscode, setAdmin, clearAdmin, isAdmin } from "@/lib/admin";
 import { nextStatus } from "@/lib/trip";
+import { isStore } from "@/lib/constants";
 
 export async function adminLogin(formData: FormData) {
   const passcode = String(formData.get("passcode") ?? "");
@@ -58,6 +59,45 @@ export async function toggleOrderFlag(formData: FormData) {
       data: { [key]: !order[key] },
     });
   }
+  revalidatePath("/admin/by-person");
+}
+
+function parseIds(formData: FormData): string[] {
+  return String(formData.get("itemIds") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// By-Store shopping: mark a whole merged line (all requesters' copies) bought
+// or not in one tap. Keeps By-Person in sync since it's the same rows.
+export async function setGroupBought(formData: FormData) {
+  await requireAdmin();
+  const ids = parseIds(formData);
+  const bought = String(formData.get("bought") ?? "") === "true";
+  if (ids.length) {
+    await prisma.item.updateMany({
+      where: { id: { in: ids } },
+      data: { bought },
+    });
+  }
+  revalidatePath("/admin/by-store");
+  revalidatePath("/admin/by-person");
+}
+
+// Reassign a merged line to another store (moves every underlying item).
+export async function reassignGroup(formData: FormData) {
+  await requireAdmin();
+  const ids = parseIds(formData);
+  const store = String(formData.get("store") ?? "");
+  if (!isStore(store)) return;
+  if (ids.length) {
+    await prisma.item.updateMany({
+      where: { id: { in: ids } },
+      data: { store },
+    });
+  }
+  revalidatePath("/admin/by-store");
   revalidatePath("/admin/by-person");
 }
 

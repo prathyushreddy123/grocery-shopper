@@ -3,7 +3,7 @@ import Link from "next/link";
 const TABS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/by-person", label: "By Person" },
-  // By Store arrives in Step 4.
+  { href: "/admin/by-store", label: "By Store" },
 ] as const;
 
 export default function AdminNav({ active }: { active: string }) {
