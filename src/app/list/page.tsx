@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/context";
 import { logout } from "@/app/actions/auth";
@@ -40,11 +41,19 @@ export default async function ListPage() {
             <p className="text-sm opacity-70">Signed in as</p>
             <p className="font-semibold">{household.name}</p>
           </div>
-          <form action={logout}>
-            <button className="rounded-lg border border-border px-3 py-1.5 text-sm">
-              Sign out
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/rides"
+              className="rounded-lg border border-indigo-400 px-3 py-1.5 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+            >
+              🚗 Rides
+            </Link>
+            <form action={logout}>
+              <button className="rounded-lg border border-border px-3 py-1.5 text-sm">
+                Sign out
+              </button>
+            </form>
+          </div>
         </header>
 
         {/* Trip ticket */}

@@ -4,6 +4,7 @@ const TABS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/by-person", label: "By Person" },
   { href: "/admin/by-store", label: "By Store" },
+  { href: "/admin/rides", label: "Rides" },
 ] as const;
 
 export default function AdminNav({ active }: { active: string }) {

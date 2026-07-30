@@ -146,3 +146,30 @@ export async function advanceTripStatus(formData: FormData) {
   revalidatePath("/list");
   redirect("/admin");
 }
+
+// --- Rides (organizer opens/closes bookable dates) ---
+
+export async function openRideDate(formData: FormData) {
+  await requireAdmin();
+  const dateRaw = String(formData.get("date") ?? "");
+  const note = String(formData.get("note") ?? "").trim() || null;
+  // Store at UTC noon so the calendar day reads back identically in dev
+  // (local tz) and on Vercel (UTC) — no off-by-one.
+  const date = dateRaw ? new Date(`${dateRaw}T12:00:00Z`) : null;
+  if (!date || Number.isNaN(date.getTime())) redirect("/admin/rides?error=baddate");
+
+  await prisma.rideDate.create({ data: { date, note } });
+  revalidatePath("/admin/rides");
+  revalidatePath("/rides");
+  redirect("/admin/rides");
+}
+
+export async function closeRideDate(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("rideDateId") ?? "");
+  // Cascade removes any bookings on that date.
+  await prisma.rideDate.deleteMany({ where: { id } });
+  revalidatePath("/admin/rides");
+  revalidatePath("/rides");
+  redirect("/admin/rides");
+}
