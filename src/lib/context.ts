@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getHousehold } from "@/lib/session";
-import { getOrSeedOpenTrip } from "@/lib/trip";
+import { getCurrentTrip } from "@/lib/trip";
 
 // Resolves everything the list page needs for the logged-in user, creating
 // their order for the current open trip on demand. Returns null if not signed
@@ -11,7 +11,7 @@ export async function getUserContext() {
   const household = await getHousehold();
   if (!household) return null;
 
-  const trip = await getOrSeedOpenTrip();
+  const trip = await getCurrentTrip();
 
   const order = await prisma.order.upsert({
     where: { tripId_householdId: { tripId: trip.id, householdId: household.id } },

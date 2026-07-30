@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getUserContext, assertOwnsItem } from "@/lib/context";
+import { isOrderingOpen } from "@/lib/trip";
 import {
   DEFAULT_SIZE,
   DEFAULT_STORE_FOR_TYPE,
@@ -18,7 +19,7 @@ function parseQuantity(raw: FormDataEntryValue | null): number {
 export async function addItem(formData: FormData) {
   const ctx = await getUserContext();
   if (!ctx) throw new Error("Not signed in");
-  if (ctx.trip.status !== "OPEN") throw new Error("Ordering is closed");
+  if (!isOrderingOpen(ctx.trip)) throw new Error("Ordering is closed");
 
   const requestType = String(formData.get("requestType") ?? "");
   if (!isRequestType(requestType)) throw new Error("Invalid request type");
@@ -53,7 +54,7 @@ export async function updateItem(formData: FormData) {
     where: { id: item.orderId },
     include: { trip: true },
   });
-  if (order?.trip.status !== "OPEN") throw new Error("Ordering is closed");
+  if (!order || !isOrderingOpen(order.trip)) throw new Error("Ordering is closed");
 
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Item name is required");
@@ -77,7 +78,7 @@ export async function deleteItem(formData: FormData) {
     where: { id: item.orderId },
     include: { trip: true },
   });
-  if (order?.trip.status !== "OPEN") throw new Error("Ordering is closed");
+  if (!order || !isOrderingOpen(order.trip)) throw new Error("Ordering is closed");
 
   await prisma.item.delete({ where: { id: itemId } });
   revalidatePath("/list");
