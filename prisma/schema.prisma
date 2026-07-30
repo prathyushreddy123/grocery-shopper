@@ -1,0 +1,64 @@
+// Prisma schema — Tifton → Atlanta community grocery run app.
+// Note: SQLite does not support Prisma enums, so status/type/store are
+// String columns validated in app code via src/lib/constants.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  pinHash   String? // null = no PIN set (phone-only access)
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Trip {
+  id        String   @id @default(cuid())
+  tripDate  DateTime
+  cutoffAt  DateTime
+  // OPEN | RECEIVED | SHOPPING | RETURNING | DELIVERED | CLOSED
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  tripId      String
+  householdId String
+  delivered   Boolean  @default(false)
+  paid        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trip      Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  items     Item[]
+
+  @@unique([tripId, householdId])
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  orderId     String
+  // GROCERIES | MEAT | RESTAURANT
+  requestType String
+  name        String
+  size        String   @default("Standard — organizer picks")
+  note        String?
+  quantity    Int      @default(1)
+  // UNASSIGNED | PATEL | COSTCO | AL_MADHINA | RESTAURANT
+  store       String   @default("UNASSIGNED")
+  bought      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
