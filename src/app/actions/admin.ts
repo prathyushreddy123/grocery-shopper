@@ -24,6 +24,43 @@ async function requireAdmin() {
   if (!(await isAdmin())) redirect("/admin/login");
 }
 
+const ORDER_FLAGS = ["delivered", "paid"] as const;
+
+// Shopping checklist: flip whether an item has been bought.
+export async function toggleItemBought(formData: FormData) {
+  await requireAdmin();
+  const itemId = String(formData.get("itemId") ?? "");
+  const item = await prisma.item.findUnique({ where: { id: itemId } });
+  if (item) {
+    await prisma.item.update({
+      where: { id: itemId },
+      data: { bought: !item.bought },
+    });
+  }
+  revalidatePath("/admin/by-person");
+  revalidatePath("/admin/by-store");
+}
+
+// Per-household flags. Payment happens outside the app (Zelle/Venmo); we only
+// track the flag. `field` is validated against an allowlist so it can't be
+// used to write arbitrary columns.
+export async function toggleOrderFlag(formData: FormData) {
+  await requireAdmin();
+  const orderId = String(formData.get("orderId") ?? "");
+  const field = String(formData.get("field") ?? "");
+  if (!(ORDER_FLAGS as readonly string[]).includes(field)) return;
+
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (order) {
+    const key = field as (typeof ORDER_FLAGS)[number];
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { [key]: !order[key] },
+    });
+  }
+  revalidatePath("/admin/by-person");
+}
+
 // Create (and open) a new trip. It becomes the current trip everyone sees, so
 // this is also how the organizer reopens ordering after a run.
 export async function createTrip(formData: FormData) {

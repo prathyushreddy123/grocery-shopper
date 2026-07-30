@@ -4,6 +4,7 @@ import { isAdmin } from "@/lib/admin";
 import { getCurrentTrip, effectiveStatus, nextStatus } from "@/lib/trip";
 import { adminLogout, createTrip, advanceTripStatus } from "@/app/actions/admin";
 import { TRIP_STATUSES } from "@/lib/constants";
+import AdminNav from "./AdminNav";
 
 const ERRORS: Record<string, string> = {
   baddate: "Please pick a valid trip date.",
@@ -56,6 +57,8 @@ export default async function AdminDashboard({
             </button>
           </form>
         </header>
+
+        <AdminNav active="/admin" />
 
         {errorMsg && (
           <p className="mb-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
