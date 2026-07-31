@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getHousehold } from "@/lib/session";
 import { formatPhone } from "@/lib/phone";
 import { startLogin, register, verifyPinAction } from "@/app/actions/auth";
+import InfoNotes from "@/app/InfoNotes";
 
 const ERRORS: Record<string, string> = {
   badphone: "Please enter a valid 10-digit phone number.",
@@ -119,6 +120,10 @@ export default async function EntryPage({
               </p>
             </form>
           )}
+        </div>
+
+        <div className="mt-6">
+          <InfoNotes />
         </div>
       </div>
     </main>

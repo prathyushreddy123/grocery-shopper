@@ -11,6 +11,7 @@ import {
 } from "@/lib/constants";
 import AddItemForm from "./AddItemForm";
 import ItemRow from "./ItemRow";
+import InfoNotes from "@/app/InfoNotes";
 import Countdown from "./Countdown";
 import StatusTracker from "./StatusTracker";
 
@@ -73,6 +74,10 @@ export default async function ListPage() {
               where things stand:
             </p>
           )}
+        </div>
+
+        <div className="mb-6">
+          <InfoNotes />
         </div>
 
         {/* Status tracker (locked trips only) */}
