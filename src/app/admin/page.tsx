@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/admin";
 import { getCurrentTrip, effectiveStatus, nextStatus } from "@/lib/trip";
 import { adminLogout, createTrip, advanceTripStatus } from "@/app/actions/admin";
-import { TRIP_STATUSES } from "@/lib/constants";
+import { TRIP_STATUSES, COMMUNITY_TZ } from "@/lib/constants";
 import AdminNav from "./AdminNav";
 
 const ERRORS: Record<string, string> = {
@@ -76,6 +76,7 @@ export default async function AdminDashboard({
               weekday: "short",
               month: "long",
               day: "numeric",
+              timeZone: COMMUNITY_TZ,
             })}
           </p>
           <p className="text-sm opacity-75">
@@ -85,6 +86,7 @@ export default async function AdminDashboard({
               day: "numeric",
               hour: "numeric",
               minute: "2-digit",
+              timeZone: COMMUNITY_TZ,
             })}
           </p>
 

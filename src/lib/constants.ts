@@ -58,6 +58,10 @@ export const TRACKER_STAGES: { status: TripStatus; label: string }[] = [
 
 export const DEFAULT_SIZE = "Standard — organizer picks";
 
+// The community is in Tifton, GA (Eastern Time). Trip/cutoff times are shown
+// in this zone so they read correctly regardless of server timezone (UTC).
+export const COMMUNITY_TZ = "America/New_York";
+
 export function isRequestType(v: string): v is RequestType {
   return (REQUEST_TYPES as readonly string[]).includes(v);
 }

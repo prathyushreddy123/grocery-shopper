@@ -7,6 +7,7 @@ import {
   REQUEST_TYPES,
   REQUEST_TYPE_META,
   DEFAULT_SIZE,
+  COMMUNITY_TZ,
   type TripStatus,
 } from "@/lib/constants";
 import AddItemForm from "./AddItemForm";
@@ -20,6 +21,7 @@ function formatDate(d: Date): string {
     weekday: "long",
     month: "long",
     day: "numeric",
+    timeZone: COMMUNITY_TZ,
   });
 }
 
