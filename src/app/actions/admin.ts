@@ -173,3 +173,33 @@ export async function closeRideDate(formData: FormData) {
   revalidatePath("/rides");
   redirect("/admin/rides");
 }
+
+// Calendar toggle: open a day if closed, close it if already open. Dates are
+// stored at UTC noon (see openRideDate) so a day maps to one exact timestamp.
+export async function toggleRideDate(formData: FormData) {
+  await requireAdmin();
+  const dateRaw = String(formData.get("date") ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateRaw)) redirect("/admin/rides?error=baddate");
+  const date = new Date(`${dateRaw}T12:00:00Z`);
+
+  const existing = await prisma.rideDate.findFirst({ where: { date } });
+  if (existing) {
+    await prisma.rideDate.delete({ where: { id: existing.id } }); // cascade removes bookings
+  } else {
+    await prisma.rideDate.create({ data: { date } });
+  }
+  revalidatePath("/admin/rides");
+  revalidatePath("/rides");
+  redirect("/admin/rides");
+}
+
+// Optional organizer note on an open date (e.g. "Leaving 8am").
+export async function setRideDateNote(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("rideDateId") ?? "");
+  const note = String(formData.get("note") ?? "").trim() || null;
+  await prisma.rideDate.updateMany({ where: { id }, data: { note } });
+  revalidatePath("/admin/rides");
+  revalidatePath("/rides");
+  redirect("/admin/rides");
+}

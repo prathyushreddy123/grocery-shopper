@@ -1,38 +1,46 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/admin";
-import { openRideDate, closeRideDate } from "@/app/actions/admin";
+import { toggleRideDate, setRideDateNote } from "@/app/actions/admin";
 import { formatPhone } from "@/lib/phone";
 import AdminNav from "../AdminNav";
 
-const ERRORS: Record<string, string> = {
-  baddate: "Please pick a valid date.",
-};
+const pad = (n: number) => String(n).padStart(2, "0");
+const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
-export default async function AdminRidesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
+type OpenInfo = { id: string; note: string | null; count: number };
+
+export default async function AdminRidesPage() {
   if (!(await isAdmin())) redirect("/admin/login");
-  const { error } = await searchParams;
-  const errorMsg = error ? ERRORS[error] : null;
 
-  const startOfToday = new Date();
-  startOfToday.setUTCHours(0, 0, 0, 0);
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const startOfMonth = new Date(Date.UTC(year, now.getUTCMonth(), 1));
+  const todayKey = dayKey(now);
 
   const rideDates = await prisma.rideDate.findMany({
-    where: { date: { gte: startOfToday } },
+    where: { date: { gte: startOfMonth } },
     orderBy: { date: "asc" },
     include: {
-      bookings: {
-        include: { household: true },
-        orderBy: { createdAt: "asc" },
-      },
+      bookings: { include: { household: true }, orderBy: { createdAt: "asc" } },
     },
   });
 
-  const defaultDate = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  const open = new Map<string, OpenInfo>();
+  for (const rd of rideDates) {
+    open.set(dayKey(rd.date), {
+      id: rd.id,
+      note: rd.note,
+      count: rd.bookings.length,
+    });
+  }
+
+  // Current month through December of this year.
+  const months: { year: number; month: number }[] = [];
+  for (let m = now.getUTCMonth(); m <= 11; m++) months.push({ year, month: m });
+
+  const openFuture = rideDates.filter((rd) => dayKey(rd.date) >= todayKey);
 
   return (
     <main className="flex-1">
@@ -40,87 +48,70 @@ export default async function AdminRidesPage({
         <h1 className="mb-4 text-lg font-bold">Rides</h1>
         <AdminNav active="/admin/rides" />
 
-        {errorMsg && (
-          <p className="mb-4 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-            {errorMsg}
+        <div className="mb-5 rounded-xl border border-border bg-card p-3 text-sm">
+          <p className="font-semibold">Open dates for rides</p>
+          <p className="mt-1 opacity-70">
+            Tap any day to <b>open</b> it for booking. Tap a{" "}
+            <span className="font-semibold text-indigo-600 dark:text-indigo-300">
+              highlighted
+            </span>{" "}
+            day to close it. A dot means someone has already booked that day.
           </p>
-        )}
+        </div>
 
-        {/* Open a new ride date */}
-        <section className="mb-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
-          <h2 className="mb-1 text-base font-bold">Open a ride date</h2>
-          <p className="mb-3 text-sm opacity-70">
-            Members will be able to tap this date to book a ride.
-          </p>
-          <form action={openRideDate} className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="font-medium">Date</span>
-              <input
-                type="date"
-                name="date"
-                required
-                defaultValue={defaultDate}
-                className="rounded-lg border border-border bg-background px-3 py-2.5 text-base"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="font-medium">
-                Note <span className="opacity-60">(optional)</span>
-              </span>
-              <input
-                name="note"
-                placeholder="e.g. Leaving 8am, Atlanta airport run"
-                className="rounded-lg border border-border bg-background px-3 py-2.5 text-base"
-              />
-            </label>
-            <button
-              type="submit"
-              className="rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white"
-            >
-              Open this date
-            </button>
-          </form>
-        </section>
+        <div className="flex flex-col gap-6">
+          {months.map(({ year: y, month }) => (
+            <MonthGrid
+              key={`${y}-${month}`}
+              year={y}
+              month={month}
+              open={open}
+              todayKey={todayKey}
+            />
+          ))}
+        </div>
 
-        {/* Open dates + bookings */}
-        <h2 className="mb-3 text-base font-bold">Open dates</h2>
-        {rideDates.length === 0 && (
+        {/* Open dates with notes + who booked */}
+        <h2 className="mb-3 mt-8 text-base font-bold">
+          Open dates & bookings
+        </h2>
+        {openFuture.length === 0 && (
           <p className="rounded-xl border border-border bg-card p-4 text-sm opacity-70">
-            No ride dates open yet.
+            No dates open yet — tap days in the calendar above.
           </p>
         )}
         <div className="flex flex-col gap-4">
-          {rideDates.map((rd) => (
+          {openFuture.map((rd) => (
             <section
               key={rd.id}
               className="rounded-2xl border border-border bg-card p-4 shadow-sm"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-bold">
-                    {rd.date.toLocaleDateString("en-US", {
-                      weekday: "short",
-                      month: "long",
-                      day: "numeric",
-                      timeZone: "UTC",
-                    })}
-                  </p>
-                  {rd.note && (
-                    <p className="text-xs opacity-70">{rd.note}</p>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                    {rd.bookings.length} booked
-                  </span>
-                  <form action={closeRideDate}>
-                    <input type="hidden" name="rideDateId" value={rd.id} />
-                    <button className="rounded px-2 py-1 text-xs text-red-600 underline">
-                      Close
-                    </button>
-                  </form>
-                </div>
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-bold">
+                  {rd.date.toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "long",
+                    day: "numeric",
+                    timeZone: "UTC",
+                  })}
+                </p>
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                  {rd.bookings.length} booked
+                </span>
               </div>
+
+              <form action={setRideDateNote} className="mt-2 flex gap-2">
+                <input type="hidden" name="rideDateId" value={rd.id} />
+                <input
+                  name="note"
+                  defaultValue={rd.note ?? ""}
+                  placeholder="Optional note (e.g. Leaving 8am)"
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+                />
+                <button className="rounded-lg border border-border px-3 py-1.5 text-sm">
+                  Save
+                </button>
+              </form>
 
               {rd.bookings.length > 0 && (
                 <ul className="mt-3 flex flex-col gap-1.5">
@@ -148,5 +139,78 @@ export default async function AdminRidesPage({
         </div>
       </div>
     </main>
+  );
+}
+
+function MonthGrid({
+  year,
+  month,
+  open,
+  todayKey,
+}: {
+  year: number;
+  month: number;
+  open: Map<string, OpenInfo>;
+  todayKey: string;
+}) {
+  const monthName = new Date(Date.UTC(year, month, 1)).toLocaleDateString(
+    "en-US",
+    { month: "long", year: "numeric", timeZone: "UTC" },
+  );
+  const firstWeekday = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <h2 className="mb-3 text-center text-base font-bold">{monthName}</h2>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {WEEKDAYS.map((w, i) => (
+          <div key={i} className="py-1 text-xs font-semibold opacity-50">
+            {w}
+          </div>
+        ))}
+        {cells.map((day, i) => {
+          if (day === null) return <div key={i} />;
+          const key = `${year}-${pad(month + 1)}-${pad(day)}`;
+          const info = open.get(key);
+          const isPast = key < todayKey;
+
+          if (isPast) {
+            return (
+              <div
+                key={i}
+                className="flex h-11 items-center justify-center rounded-lg text-sm opacity-25"
+              >
+                {day}
+              </div>
+            );
+          }
+
+          return (
+            <form key={i} action={toggleRideDate}>
+              <input type="hidden" name="date" value={key} />
+              <button
+                type="submit"
+                className={[
+                  "relative flex h-11 w-full items-center justify-center rounded-lg text-sm font-semibold",
+                  info
+                    ? "bg-indigo-600 text-white"
+                    : "border border-border text-foreground/70 hover:border-indigo-400",
+                ].join(" ")}
+              >
+                {day}
+                {info && info.count > 0 && (
+                  <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-white" />
+                )}
+              </button>
+            </form>
+          );
+        })}
+      </div>
+    </section>
   );
 }
