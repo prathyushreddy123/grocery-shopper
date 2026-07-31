@@ -71,6 +71,16 @@ export default async function ByPersonPage() {
                     <p className="text-xs opacity-60">
                       {formatPhone(order.household.phone)}
                     </p>
+                    <p className="mt-0.5 text-xs opacity-70">
+                      📍{" "}
+                      {order.household.address ? (
+                        order.household.address
+                      ) : (
+                        <span className="italic text-amber-600 dark:text-amber-400">
+                          no address given
+                        </span>
+                      )}
+                    </p>
                   </div>
                   <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
                     {bought}/{order.items.length} bought

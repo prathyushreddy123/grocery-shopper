@@ -16,6 +16,7 @@ model Household {
   name      String
   phone     String   @unique
   pinHash   String? // null = no PIN set (phone-only access)
+  address   String? // delivery address (free text); set by the household
   createdAt DateTime @default(now())
   orders    Order[]
   rideBookings RideBooking[]

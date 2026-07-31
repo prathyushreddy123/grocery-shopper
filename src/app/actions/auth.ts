@@ -25,6 +25,7 @@ export async function register(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const phone = normalizePhone(String(formData.get("phone") ?? ""));
   const pinRaw = String(formData.get("pin") ?? "").trim();
+  const address = String(formData.get("address") ?? "").trim() || null;
 
   if (!phone) redirect(`/?error=badphone`);
   if (!name) redirect(`/?step=register&phone=${phone}&error=noname`);
@@ -41,7 +42,7 @@ export async function register(formData: FormData) {
   }
 
   const household = await prisma.household.create({
-    data: { name, phone, pinHash: pinRaw ? hashPin(pinRaw) : null },
+    data: { name, phone, pinHash: pinRaw ? hashPin(pinRaw) : null, address },
   });
   await setSession(household.id);
   redirect("/list");

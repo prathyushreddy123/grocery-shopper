@@ -60,6 +60,18 @@ export default async function EntryPage({
               </p>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">
+                  Delivery address{" "}
+                  <span className="opacity-60">(where should I drop off?)</span>
+                </span>
+                <textarea
+                  name="address"
+                  rows={2}
+                  placeholder="Street address, apt #, city"
+                  className="rounded-lg border border-border bg-background px-3 py-2.5 text-base"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">
                   Set a 4-digit PIN{" "}
                   <span className="opacity-60">(optional, for privacy)</span>
                 </span>

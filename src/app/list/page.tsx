@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/context";
 import { logout } from "@/app/actions/auth";
+import { updateAddress } from "@/app/actions/profile";
 import { isOrderingOpen, effectiveStatus } from "@/lib/trip";
 import {
   REQUEST_TYPES,
@@ -80,6 +81,38 @@ export default async function ListPage() {
 
         <div className="mb-6">
           <InfoNotes />
+        </div>
+
+        {/* Delivery address */}
+        <div
+          className={[
+            "mb-6 rounded-2xl border p-4",
+            household.address
+              ? "border-border bg-card"
+              : "border-amber-400 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30",
+          ].join(" ")}
+        >
+          <form action={updateAddress} className="flex flex-col gap-2">
+            <label className="text-sm font-semibold" htmlFor="address">
+              📍 Delivery address
+            </label>
+            {!household.address && (
+              <p className="text-xs text-amber-700 dark:text-amber-300">
+                Add your address so I know where to drop off your order.
+              </p>
+            )}
+            <textarea
+              id="address"
+              name="address"
+              rows={2}
+              defaultValue={household.address ?? ""}
+              placeholder="Street address, apt #, city"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
+            <button className="self-start rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white">
+              Save address
+            </button>
+          </form>
         </div>
 
         {/* Status tracker (locked trips only) */}
