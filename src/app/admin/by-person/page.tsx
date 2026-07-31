@@ -12,6 +12,7 @@ import {
   type Store,
 } from "@/lib/constants";
 import ListFilter from "../ListFilter";
+import SignupGaps from "../SignupGaps";
 import AdminNav from "../AdminNav";
 
 export default async function ByPersonPage({
@@ -35,6 +36,38 @@ export default async function ByPersonPage({
   const totalItems = orders.reduce((n, o) => n + o.items.length, 0);
   const deliveredCount = orders.filter((o) => o.delivered).length;
   const paidCount = orders.filter((o) => o.paid).length;
+
+  // Households with nothing on this trip — invisible in the list above, since
+  // that only includes orders that have items. Split by whether they've ever
+  // ordered: a new signup who never ordered may be stuck and needs a different
+  // kind of follow-up than a regular who just hasn't got to it yet.
+  const withoutItems = await prisma.household.findMany({
+    where: { orders: { none: { tripId: trip.id, items: { some: {} } } } },
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: { select: { rideBookings: true } },
+      orders: { select: { _count: { select: { items: true } } } },
+    },
+  });
+  const gaps = withoutItems.map((h) => ({
+    id: h.id,
+    name: h.name,
+    phone: h.phone,
+    createdAt: h.createdAt,
+    everOrdered: h.orders.some((o) => o._count.items > 0),
+    rideBookings: h._count.rideBookings,
+  }));
+  const neverOrdered = gaps.filter((h) => !h.everOrdered);
+  const quietThisTrip = gaps.filter((h) => h.everOrdered);
+
+  // Ordered, but nowhere to deliver it — the one that bites on delivery day.
+  const missingAddress = orders
+    .filter((o) => !o.household.address?.trim())
+    .map((o) => ({
+      id: o.household.id,
+      name: o.household.name,
+      phone: o.household.phone,
+    }));
 
   // Searching a person's name keeps their whole list; searching a product
   // narrows to matching items. Households left with nothing drop out.
@@ -77,6 +110,15 @@ export default async function ByPersonPage({
             delivered · {paidCount} paid
           </p>
         </div>
+
+        {/* Follow-ups, hidden while searching so the results stay clean */}
+        {!q && (
+          <SignupGaps
+            neverOrdered={neverOrdered}
+            quietThisTrip={quietThisTrip}
+            missingAddress={missingAddress}
+          />
+        )}
 
         <ListFilter
           basePath="/admin/by-person"
