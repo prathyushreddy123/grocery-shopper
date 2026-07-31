@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { updateItem, deleteItem } from "@/app/actions/items";
 import { DEFAULT_SIZE } from "@/lib/constants";
 
@@ -15,17 +15,18 @@ type ItemView = {
 export default function ItemRow({ item }: { item: ItemView }) {
   const [editing, setEditing] = useState(false);
 
-  // Wrap the void server action so we get a success signal to close the editor.
-  const [saveTick, saveAction, saving] = useActionState(
-    async (_prev: number, fd: FormData) => {
+  // Wrap the void server action so the editor closes once the save lands.
+  // Closing is a consequence of the save, so it belongs here rather than in an
+  // effect watching for a success signal. A throw leaves the editor open with
+  // the user's input intact.
+  const [, saveAction, saving] = useActionState(
+    async (_prev: null, fd: FormData) => {
       await updateItem(fd);
-      return Date.now();
+      setEditing(false);
+      return null;
     },
-    0,
+    null,
   );
-  useEffect(() => {
-    if (saveTick) setEditing(false);
-  }, [saveTick]);
 
   if (editing) {
     return (

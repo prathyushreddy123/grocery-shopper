@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getHousehold } from "@/lib/session";
 import { formatPhone } from "@/lib/phone";
@@ -117,9 +118,12 @@ export default async function EntryPage({
                 />
               </label>
               <SubmitButton>Open my list →</SubmitButton>
-              <a href="/" className="text-center text-sm underline opacity-70">
+              <Link
+                href="/"
+                className="text-center text-sm underline opacity-70"
+              >
                 Use a different number
-              </a>
+              </Link>
             </form>
           ) : (
             <form action={startLogin} className="flex flex-col gap-4">
