@@ -18,8 +18,9 @@ export default function InfoNotes() {
         <span aria-hidden>🛍️</span>
         <span>
           Each trip I shop at <b>Costco</b>, <b>Patel Brothers</b>,{" "}
-          <b>Desi District</b>, <b>Al Madina Halal Market</b>, and a{" "}
-          <b>restaurant</b> — for groceries, meat, and prepared food.
+          <b>Desi District</b>, <b>Al Madina Halal Market</b>, and{" "}
+          <b>any other place on demand</b> — for groceries, meat, and prepared
+          food.
         </span>
       </p>
     </div>
