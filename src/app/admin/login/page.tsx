@@ -38,7 +38,7 @@ export default async function AdminLoginPage({
           </label>
           <button
             type="submit"
-            className="rounded-lg bg-slate-800 px-4 py-3 font-semibold text-white dark:bg-slate-700"
+            className="rounded-lg bg-foreground px-4 py-3 font-semibold text-background"
           >
             Sign in
           </button>

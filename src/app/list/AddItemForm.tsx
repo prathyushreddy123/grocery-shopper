@@ -36,7 +36,7 @@ export default function AddItemForm({
         />
         <button
           type="submit"
-          className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white"
+          className="shrink-0 rounded-lg bg-brand px-4 py-2.5 font-semibold text-brand-on"
         >
           Add
         </button>

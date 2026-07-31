@@ -2,7 +2,7 @@
 // stores the organizer visits each trip. Edit the copy here in one place.
 export default function InfoNotes() {
   return (
-    <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950/30">
+    <div className="rounded-2xl border border-accent-line bg-accent-soft p-4 text-sm">
       <p className="mb-2 font-bold">Good to know</p>
 
       <p className="flex gap-2">

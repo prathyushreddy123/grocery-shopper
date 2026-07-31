@@ -66,11 +66,14 @@ model Item {
 }
 
 // Rides: a standalone feature, independent of grocery trips. The organizer
-// opens specific dates; households book a seat on an open date.
+// opens specific dates; households book seats on an open date. Several
+// households share one date — it's the same car making the same trip — until
+// the date's seats run out.
 model RideDate {
   id        String   @id @default(cuid())
   date      DateTime // the day rides are offered (stored at local noon)
   note      String? // optional info from organizer (destination, time…)
+  capacity  Int      @default(3) // seats in the car that day; organizer can change it
   createdAt DateTime @default(now())
 
   bookings RideBooking[]
@@ -80,7 +83,8 @@ model RideBooking {
   id          String   @id @default(cuid())
   rideDateId  String
   householdId String
-  note        String? // optional: "2 people, pickup 9am"
+  seats       Int      @default(1) // people riding from this household
+  note        String? // optional: "pickup 9am, corner of 5th"
   createdAt   DateTime @default(now())
 
   rideDate  RideDate  @relation(fields: [rideDateId], references: [id], onDelete: Cascade)

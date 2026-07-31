@@ -40,7 +40,7 @@ export default async function ByPersonPage() {
               month: "long",
               day: "numeric",
             })}{" "}
-            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-xs font-medium text-white dark:bg-slate-700">
+            <span className="ml-1 rounded-full bg-foreground px-2 py-0.5 text-xs font-medium text-background">
               {effectiveStatus(trip)}
             </span>
           </p>
@@ -76,13 +76,13 @@ export default async function ByPersonPage() {
                       {order.household.address ? (
                         order.household.address
                       ) : (
-                        <span className="italic text-amber-600 dark:text-amber-400">
+                        <span className="italic text-accent">
                           no address given
                         </span>
                       )}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                  <span className="shrink-0 rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand-ink">
                     {bought}/{order.items.length} bought
                   </span>
                 </header>
@@ -133,7 +133,7 @@ export default async function ByPersonPage() {
                                 className={[
                                   "flex w-full items-start gap-2 rounded-lg border px-3 py-2 text-left",
                                   item.bought
-                                    ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40"
+                                    ? "border-brand-line bg-brand-soft"
                                     : "border-border bg-background",
                                 ].join(" ")}
                               >
@@ -206,7 +206,7 @@ function FlagButton({
         className={[
           "w-full rounded-lg border px-3 py-2 text-sm font-medium",
           on
-            ? "border-emerald-500 bg-emerald-600 text-white"
+            ? "border-brand bg-brand text-brand-on"
             : "border-border bg-background opacity-80",
         ].join(" ")}
       >

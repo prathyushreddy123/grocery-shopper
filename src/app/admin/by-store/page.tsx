@@ -43,7 +43,7 @@ export default async function ByStorePage() {
               month: "long",
               day: "numeric",
             })}{" "}
-            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-xs font-medium text-white dark:bg-slate-700">
+            <span className="ml-1 rounded-full bg-foreground px-2 py-0.5 text-xs font-medium text-background">
               {effectiveStatus(trip)}
             </span>
           </p>
@@ -70,18 +70,18 @@ export default async function ByStorePage() {
                 className={[
                   "rounded-2xl border p-4 shadow-sm",
                   isUnassigned
-                    ? "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+                    ? "border-accent-line bg-accent-soft"
                     : "border-border bg-card",
                 ].join(" ")}
               >
                 <h2 className="mb-3 flex items-center gap-2 text-base font-bold">
                   {STORE_LABELS[store]}
-                  <span className="ml-auto rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                  <span className="ml-auto rounded-full bg-foreground/10 px-2 py-0.5 text-xs font-medium text-foreground/80">
                     {lines.length} line{lines.length === 1 ? "" : "s"}
                   </span>
                 </h2>
                 {isUnassigned && (
-                  <p className="mb-3 text-xs text-amber-700 dark:text-amber-300">
+                  <p className="mb-3 text-xs text-accent-ink">
                     Assign these to a store below.
                   </p>
                 )}
@@ -114,7 +114,7 @@ function StoreLine({ line, store }: { line: MergedLine; store: Store }) {
       className={[
         "rounded-lg border",
         line.allBought
-          ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40"
+          ? "border-brand-line bg-brand-soft"
           : "border-border bg-background",
       ].join(" ")}
     >

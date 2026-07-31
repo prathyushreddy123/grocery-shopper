@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="tw-badge" x1="0" y1="0" x2="48" y2="48">
+      <stop offset="0%" stop-color="#1f9d55" />
+      <stop offset="100%" stop-color="#0d7a6f" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="13" fill="url(#tw-badge)" />
+  <path d="M17 23a7 7 0 0 1 14 0" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" />
+  <path d="M11.5 23h25l-3.1 11.6a3 3 0 0 1-2.9 2.2H17.5a3 3 0 0 1-2.9-2.2z" fill="#ffffff" />
+  <path d="M20.4 27.5l.9 5.6M27.6 27.5l-.9 5.6" stroke="#1f9d55" stroke-width="2" stroke-linecap="round" />
+  <path d="M13 41h6M23 41h4M31 41h4" stroke="#ffffff" stroke-opacity="0.65" stroke-width="2" stroke-linecap="round" />
+</svg>

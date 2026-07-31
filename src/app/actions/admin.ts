@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { checkPasscode, setAdmin, clearAdmin, isAdmin } from "@/lib/admin";
 import { nextStatus } from "@/lib/trip";
 import { isStore } from "@/lib/constants";
+import { seatsTaken } from "@/lib/rides";
 
 export async function adminLogin(formData: FormData) {
   const passcode = String(formData.get("passcode") ?? "");
@@ -190,6 +191,30 @@ export async function toggleRideDate(formData: FormData) {
   }
   revalidatePath("/admin/rides");
   revalidatePath("/rides");
+  redirect("/admin/rides");
+}
+
+// Seats in the car for a given date. Can't drop below what's already booked —
+// the organizer would have to cancel someone first.
+export async function setRideCapacity(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("rideDateId") ?? "");
+  const capacity = Math.min(12, Math.max(1, Math.trunc(Number(formData.get("capacity")))));
+  if (!Number.isFinite(capacity)) redirect("/admin/rides?error=badcapacity");
+
+  const rideDate = await prisma.rideDate.findUnique({
+    where: { id },
+    include: { bookings: true },
+  });
+  if (!rideDate) redirect("/admin/rides?error=nodate");
+  if (capacity < seatsTaken(rideDate.bookings)) {
+    redirect("/admin/rides?error=capacitylow");
+  }
+
+  await prisma.rideDate.update({ where: { id }, data: { capacity } });
+  revalidatePath("/admin/rides");
+  revalidatePath("/rides");
+  revalidatePath("/list");
   redirect("/admin/rides");
 }
 

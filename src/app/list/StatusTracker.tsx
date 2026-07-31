@@ -16,9 +16,9 @@ export default function StatusTracker({ status }: { status: TripStatus }) {
               className={[
                 "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold",
                 done
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-brand text-brand-on"
                   : current
-                    ? "bg-emerald-600 text-white ring-4 ring-emerald-200 dark:ring-emerald-900"
+                    ? "bg-brand text-brand-on ring-4 ring-brand-line"
                     : "bg-border text-foreground/50",
               ].join(" ")}
             >

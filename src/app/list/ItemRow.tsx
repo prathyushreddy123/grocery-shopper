@@ -31,7 +31,7 @@ export default function ItemRow({ item }: { item: ItemView }) {
     return (
       <form
         action={saveAction}
-        className="flex flex-col gap-2 rounded-lg border border-emerald-400 bg-background p-3"
+        className="flex flex-col gap-2 rounded-lg border border-brand bg-background p-3"
       >
         <input type="hidden" name="itemId" value={item.id} />
         <div className="flex gap-2">
@@ -67,7 +67,7 @@ export default function ItemRow({ item }: { item: ItemView }) {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-lg bg-brand px-3 py-1.5 text-sm font-semibold text-brand-on disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>

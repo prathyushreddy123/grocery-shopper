@@ -1,10 +1,49 @@
 @import "tailwindcss";
 
+/* Brand palette. Every color the app uses lives here (light + dark), so pages
+   can say `bg-brand` / `border-accent-line` and never repeat a `dark:` variant.
+   Green = the app's one primary color (groceries and rides alike); saffron is
+   the single accent, used for "read this" notes. */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f7f8f5;
+  --foreground: #12231b;
   --card: #ffffff;
-  --border: #e2e8f0;
+  --border: #e3e7e0;
+  --muted: #5d6b63;
+
+  --brand: #15803d;
+  --brand-hover: #166534;
+  --brand-on: #ffffff;
+  --brand-soft: #eaf6ee;
+  --brand-line: #a7d8b9;
+  --brand-ink: #14532d;
+
+  --accent: #b45309;
+  --accent-soft: #fdf5e6;
+  --accent-line: #ecc98a;
+  --accent-ink: #8a4708;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0c1512;
+    --foreground: #e6ece8;
+    --card: #132019;
+    --border: #24352c;
+    --muted: #9baba2;
+
+    --brand: #22a35a;
+    --brand-hover: #2bb867;
+    --brand-on: #06170e;
+    --brand-soft: #10281c;
+    --brand-line: #2f5c42;
+    --brand-ink: #86e6ab;
+
+    --accent: #e8a33d;
+    --accent-soft: #241a0d;
+    --accent-line: #5a4320;
+    --accent-ink: #f0c07a;
+  }
 }
 
 @theme inline {
@@ -12,26 +51,34 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-border: var(--border);
-}
+  --color-muted: var(--muted);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1120;
-    --foreground: #e2e8f0;
-    --card: #131c31;
-    --border: #26324a;
-  }
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-on: var(--brand-on);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
+  --color-brand-ink: var(--brand-ink);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-accent-ink: var(--accent-ink);
+
+  /* Set on <html> by next/font in layout.tsx. */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
 }

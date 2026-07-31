@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "RideDate" ADD COLUMN "capacity" INTEGER NOT NULL DEFAULT 3;
+
+-- AlterTable
+ALTER TABLE "RideBooking" ADD COLUMN "seats" INTEGER NOT NULL DEFAULT 1;

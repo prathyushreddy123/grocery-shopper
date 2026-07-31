@@ -3,6 +3,7 @@ import { getHousehold } from "@/lib/session";
 import { formatPhone } from "@/lib/phone";
 import { startLogin, register, verifyPinAction } from "@/app/actions/auth";
 import InfoNotes from "@/app/InfoNotes";
+import Logo from "@/app/Logo";
 
 const ERRORS: Record<string, string> = {
   badphone: "Please enter a valid 10-digit phone number.",
@@ -25,14 +26,16 @@ export default async function EntryPage({
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm">
-        <header className="mb-8 text-center">
-          <div className="text-4xl mb-2">🛒</div>
-          <h1 className="text-2xl font-bold">TiftonWala</h1>
-          <p className="text-sm font-medium opacity-80">Groceries &amp; Rides</p>
-          <p className="mt-2 text-lg font-bold italic text-emerald-700 dark:text-emerald-300">
+        <header className="mb-8 flex flex-col items-center text-center">
+          <Logo size={64} showWordmark={false} />
+          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight">
+            Tifton<span className="text-brand">Wala</span>
+          </h1>
+          <p className="text-sm font-medium text-muted">Groceries &amp; Rides</p>
+          <p className="mt-3 text-lg font-bold italic text-brand">
             We drive, so you don&apos;t have to.
           </p>
-          <p className="mt-2 text-xs opacity-70">
+          <p className="mt-2 text-xs text-muted">
             Indian &amp; Nepali groceries, meat &amp; prepared food — for Tifton
             families and neighbors.
           </p>
@@ -151,7 +154,7 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
   return (
     <button
       type="submit"
-      className="rounded-lg bg-emerald-600 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:bg-emerald-800"
+      className="rounded-lg bg-brand px-4 py-3 text-base font-semibold text-brand-on transition-colors hover:bg-brand-hover"
     >
       {children}
     </button>

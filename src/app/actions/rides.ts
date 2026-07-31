@@ -1,24 +1,48 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getHousehold } from "@/lib/session";
+import { clampSeats, seatsTaken } from "@/lib/rides";
 
-// Book a seat on an organizer-opened ride date. Idempotent per household+date.
+function refreshRideViews() {
+  revalidatePath("/rides");
+  revalidatePath("/list"); // the list page teases the next ride + seats left
+}
+
+// Book seats on an organizer-opened date — also the "change how many seats"
+// path, since it upserts. One booking per household per date; several
+// households share the date until its seats are gone.
 export async function bookRide(formData: FormData) {
   const household = await getHousehold();
   if (!household) throw new Error("Not signed in");
   const rideDateId = String(formData.get("rideDateId") ?? "");
+  const seats = clampSeats(formData.get("seats"));
 
-  const rideDate = await prisma.rideDate.findUnique({ where: { id: rideDateId } });
-  if (!rideDate) throw new Error("That ride date is no longer available");
+  // Read the seat count and write the booking in one transaction, so two
+  // households tapping the last seat at the same moment can't both win.
+  const outcome = await prisma.$transaction(async (tx) => {
+    const rideDate = await tx.rideDate.findUnique({
+      where: { id: rideDateId },
+      include: { bookings: true },
+    });
+    if (!rideDate) return "gone";
 
-  await prisma.rideBooking.upsert({
-    where: { rideDateId_householdId: { rideDateId, householdId: household.id } },
-    create: { rideDateId, householdId: household.id },
-    update: {},
+    const mine = rideDate.bookings.find((b) => b.householdId === household.id);
+    const takenByOthers = seatsTaken(rideDate.bookings) - (mine?.seats ?? 0);
+    if (takenByOthers + seats > rideDate.capacity) return "full";
+
+    await tx.rideBooking.upsert({
+      where: { rideDateId_householdId: { rideDateId, householdId: household.id } },
+      create: { rideDateId, householdId: household.id, seats },
+      update: { seats },
+    });
+    return "ok";
   });
-  revalidatePath("/rides");
+
+  if (outcome !== "ok") redirect(`/rides?error=${outcome}`);
+  refreshRideViews();
 }
 
 export async function cancelRide(formData: FormData) {
@@ -29,10 +53,10 @@ export async function cancelRide(formData: FormData) {
   await prisma.rideBooking.deleteMany({
     where: { rideDateId, householdId: household.id },
   });
-  revalidatePath("/rides");
+  refreshRideViews();
 }
 
-// Optional note on your own booking (e.g. "2 people, pickup 9am").
+// Optional note on your own booking (e.g. "pickup 9am, corner of 5th").
 export async function setRideNote(formData: FormData) {
   const household = await getHousehold();
   if (!household) throw new Error("Not signed in");
@@ -43,5 +67,5 @@ export async function setRideNote(formData: FormData) {
     where: { rideDateId, householdId: household.id },
     data: { note },
   });
-  revalidatePath("/rides");
+  refreshRideViews();
 }

@@ -91,7 +91,7 @@ export default async function AdminDashboard({
           </p>
 
           <div className="mt-3 flex items-center gap-2">
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-white dark:bg-slate-700">
+            <span className="rounded-full bg-foreground px-3 py-1 text-sm font-semibold text-background">
               {eff}
             </span>
             {eff !== trip.status && (
@@ -116,13 +116,13 @@ export default async function AdminDashboard({
                 <input type="hidden" name="tripId" value={trip.id} />
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
+                  className="rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-brand-on"
                 >
                   Advance to “{next}”
                 </button>
               </form>
             ) : (
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+              <p className="text-sm font-medium text-brand-ink">
                 Trip complete.
               </p>
             )}
@@ -158,7 +158,7 @@ export default async function AdminDashboard({
             </label>
             <button
               type="submit"
-              className="rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white"
+              className="rounded-lg bg-brand px-4 py-3 font-semibold text-brand-on"
             >
               Create trip & open ordering
             </button>

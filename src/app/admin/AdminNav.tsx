@@ -19,7 +19,7 @@ export default function AdminNav({ active }: { active: string }) {
             className={[
               "flex-1 rounded-lg px-3 py-2 text-center font-medium transition-colors",
               isActive
-                ? "bg-slate-800 text-white dark:bg-slate-700"
+                ? "bg-foreground text-background"
                 : "opacity-70 hover:opacity-100",
             ].join(" ")}
           >
