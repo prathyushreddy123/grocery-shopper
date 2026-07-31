@@ -5,6 +5,7 @@ import { getCurrentTrip, effectiveStatus } from "@/lib/trip";
 import { setGroupBought, reassignGroup } from "@/app/actions/admin";
 import { mergeByStore, type MergedLine } from "@/lib/byStore";
 import { STORE_LABELS, STORES, type Store } from "@/lib/constants";
+import ListFilter from "../ListFilter";
 import AdminNav from "../AdminNav";
 
 // Unassigned first (needs a decision), then in a natural shopping order.
@@ -16,8 +17,28 @@ const DISPLAY_ORDER: Store[] = [
   "RESTAURANT",
 ];
 
-export default async function ByStorePage() {
+// A line matches on its product name, its size, or any requester's name — so
+// "atta" and "Priya" both work while standing in the aisle.
+function lineMatches(line: MergedLine, q: string): boolean {
+  if (!q) return true;
+  const needle = q.toLowerCase();
+  return (
+    line.name.toLowerCase().includes(needle) ||
+    line.size.toLowerCase().includes(needle) ||
+    line.requesters.some((r) => r.name.toLowerCase().includes(needle))
+  );
+}
+
+export default async function ByStorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; hide?: string }>;
+}) {
   if (!(await isAdmin())) redirect("/admin/login");
+
+  const { q: rawQ, hide } = await searchParams;
+  const q = (rawQ ?? "").trim();
+  const hideBought = hide === "1";
 
   const trip = await getCurrentTrip();
   const items = await prisma.item.findMany({
@@ -29,6 +50,20 @@ export default async function ByStorePage() {
   const totalItems = items.length;
   const boughtItems = items.filter((i) => i.bought).length;
   const unassigned = grouped.get("UNASSIGNED")?.length ?? 0;
+
+  // Filter after merging, so counts describe shopping lines (what the
+  // organizer actually walks the store with), not raw item rows.
+  const visible = new Map<Store, MergedLine[]>();
+  let totalLines = 0;
+  let shownLines = 0;
+  for (const [store, lines] of grouped) {
+    totalLines += lines.length;
+    const kept = lines.filter(
+      (l) => lineMatches(l, q) && !(hideBought && l.allBought),
+    );
+    shownLines += kept.length;
+    if (kept.length > 0) visible.set(store, kept);
+  }
 
   return (
     <main className="flex-1">
@@ -53,17 +88,35 @@ export default async function ByStorePage() {
           </p>
         </div>
 
+        <ListFilter
+          basePath="/admin/by-store"
+          q={q}
+          hideBought={hideBought}
+          showing={shownLines}
+          total={totalLines}
+          unit="line"
+        />
+
         {totalItems === 0 && (
           <p className="rounded-xl border border-border bg-card p-4 text-sm opacity-70">
             No items on this trip yet.
           </p>
         )}
 
+        {totalItems > 0 && shownLines === 0 && (
+          <p className="rounded-xl border border-border bg-card p-4 text-sm opacity-70">
+            Nothing matches{q && ` “${q}”`}
+            {hideBought && q && " that isn't bought yet"}
+            {hideBought && !q && " — everything here is bought"}.
+          </p>
+        )}
+
         <div className="flex flex-col gap-5">
           {DISPLAY_ORDER.map((store) => {
-            const lines = grouped.get(store);
+            const lines = visible.get(store);
             if (!lines || lines.length === 0) return null;
             const isUnassigned = store === "UNASSIGNED";
+            const storeBought = lines.filter((l) => l.allBought).length;
             return (
               <section
                 key={store}
@@ -77,7 +130,7 @@ export default async function ByStorePage() {
                 <h2 className="mb-3 flex items-center gap-2 text-base font-bold">
                   {STORE_LABELS[store]}
                   <span className="ml-auto rounded-full bg-foreground/10 px-2 py-0.5 text-xs font-medium text-foreground/80">
-                    {lines.length} line{lines.length === 1 ? "" : "s"}
+                    {storeBought}/{lines.length} done
                   </span>
                 </h2>
                 {isUnassigned && (

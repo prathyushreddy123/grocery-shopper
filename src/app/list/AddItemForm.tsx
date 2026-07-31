@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { addItem } from "@/app/actions/items";
 import type { RequestType } from "@/lib/constants";
 
@@ -14,15 +15,27 @@ export default function AddItemForm({
   requestType: RequestType;
 }) {
   const [showDetails, setShowDetails] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   return (
     <form action={addItem} className="flex flex-col gap-2">
       <input type="hidden" name="requestType" value={requestType} />
+
+      {/* Shows the item the moment you hit Enter, and puts the cursor back in
+          the box when the save lands — so a long list is type/Enter/type/Enter
+          with no taps. Both are pure enhancements: without JS the form still
+          posts normally and this renders nothing. */}
+      <PendingItem nameRef={nameRef} />
+
       <div className="flex gap-2">
         <input
+          ref={nameRef}
           name="name"
           required
           placeholder="Add an item…"
+          autoCapitalize="words"
+          autoComplete="off"
+          enterKeyHint="done"
           className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-base"
         />
         <input
@@ -65,5 +78,46 @@ export default function AddItemForm({
         </button>
       )}
     </form>
+  );
+}
+
+// Must be rendered inside the <form> — useFormStatus reads the enclosing
+// form's submission.
+function PendingItem({
+  nameRef,
+}: {
+  nameRef: React.RefObject<HTMLInputElement | null>;
+}) {
+  const { pending, data } = useFormStatus();
+  const wasPending = useRef(false);
+
+  useEffect(() => {
+    if (pending) {
+      wasPending.current = true;
+    } else if (wasPending.current) {
+      // Only steal focus after this form's own submit, never on page load —
+      // there are three of these on the page.
+      wasPending.current = false;
+      nameRef.current?.focus();
+    }
+  }, [pending, nameRef]);
+
+  if (!pending) return null;
+
+  const name = String(data?.get("name") ?? "").trim();
+  if (!name) return null;
+  const quantity = Number(data?.get("quantity") ?? 1);
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-dashed border-brand-line bg-brand-soft/60 px-3 py-2 text-sm">
+      <span className="animate-pulse" aria-hidden>
+        ⏳
+      </span>
+      <span className="min-w-0 flex-1 font-medium">
+        {name}
+        {quantity > 1 && <span className="text-muted"> ×{quantity}</span>}
+      </span>
+      <span className="text-xs text-muted">adding…</span>
+    </div>
   );
 }

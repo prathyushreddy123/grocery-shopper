@@ -11,10 +11,19 @@ import {
   DEFAULT_SIZE,
   type Store,
 } from "@/lib/constants";
+import ListFilter from "../ListFilter";
 import AdminNav from "../AdminNav";
 
-export default async function ByPersonPage() {
+export default async function ByPersonPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; hide?: string }>;
+}) {
   if (!(await isAdmin())) redirect("/admin/login");
+
+  const { q: rawQ, hide } = await searchParams;
+  const q = (rawQ ?? "").trim();
+  const hideBought = hide === "1";
 
   const trip = await getCurrentTrip();
   const orders = await prisma.order.findMany({
@@ -26,6 +35,24 @@ export default async function ByPersonPage() {
   const totalItems = orders.reduce((n, o) => n + o.items.length, 0);
   const deliveredCount = orders.filter((o) => o.delivered).length;
   const paidCount = orders.filter((o) => o.paid).length;
+
+  // Searching a person's name keeps their whole list; searching a product
+  // narrows to matching items. Households left with nothing drop out.
+  const needle = q.toLowerCase();
+  const visibleOrders = orders
+    .map((order) => {
+      const householdMatches =
+        !q || order.household.name.toLowerCase().includes(needle);
+      const items = order.items.filter((i) => {
+        if (hideBought && i.bought) return false;
+        if (!q) return true;
+        return householdMatches || i.name.toLowerCase().includes(needle);
+      });
+      return { order, items };
+    })
+    .filter((o) => o.items.length > 0);
+
+  const shownItems = visibleOrders.reduce((n, o) => n + o.items.length, 0);
 
   return (
     <main className="flex-1">
@@ -51,14 +78,30 @@ export default async function ByPersonPage() {
           </p>
         </div>
 
+        <ListFilter
+          basePath="/admin/by-person"
+          q={q}
+          hideBought={hideBought}
+          showing={shownItems}
+          total={totalItems}
+          unit="item"
+        />
+
         {orders.length === 0 && (
           <p className="rounded-xl border border-border bg-card p-4 text-sm opacity-70">
             No one has added items to this trip yet.
           </p>
         )}
 
+        {orders.length > 0 && visibleOrders.length === 0 && (
+          <p className="rounded-xl border border-border bg-card p-4 text-sm opacity-70">
+            Nothing matches{q && ` “${q}”`}
+            {hideBought && " — everything shown is bought"}.
+          </p>
+        )}
+
         <div className="flex flex-col gap-5">
-          {orders.map((order) => {
+          {visibleOrders.map(({ order, items: shownForOrder }) => {
             const bought = order.items.filter((i) => i.bought).length;
             return (
               <section
@@ -106,7 +149,7 @@ export default async function ByPersonPage() {
                 {/* Items grouped by request type */}
                 <div className="flex flex-col gap-3">
                   {REQUEST_TYPES.map((type) => {
-                    const items = order.items.filter(
+                    const items = shownForOrder.filter(
                       (i) => i.requestType === type,
                     );
                     if (items.length === 0) return null;
