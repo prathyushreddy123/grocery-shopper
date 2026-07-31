@@ -60,7 +60,7 @@ export default async function ListPage() {
         {/* Trip ticket */}
         <div className="mb-6 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/40">
           <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-            Next Atlanta trip
+            Next grocery run
           </p>
           <p className="text-lg font-bold">{formatDate(trip.tripDate)}</p>
           {ordering ? (

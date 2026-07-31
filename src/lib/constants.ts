@@ -51,7 +51,7 @@ export type TripStatus = (typeof TRIP_STATUSES)[number];
 // User-facing tracker stages (post-cutoff), in order.
 export const TRACKER_STAGES: { status: TripStatus; label: string }[] = [
   { status: "RECEIVED", label: "List received" },
-  { status: "SHOPPING", label: "Shopping in Atlanta" },
+  { status: "SHOPPING", label: "Out shopping" },
   { status: "RETURNING", label: "On the way back" },
   { status: "DELIVERED", label: "Delivered" },
 ];

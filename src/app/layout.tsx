@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tifton ↔ Atlanta Grocery Run",
-  description: "Community grocery runs from Tifton to Atlanta.",
+  title: "Tifton Community Grocery Run",
+  description: "Community grocery runs and rides for Tifton households.",
 };
 
 export const viewport: Viewport = {

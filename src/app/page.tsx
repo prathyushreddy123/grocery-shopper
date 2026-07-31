@@ -27,7 +27,7 @@ export default async function EntryPage({
       <div className="w-full max-w-sm">
         <header className="mb-8 text-center">
           <div className="text-4xl mb-2">🛒</div>
-          <h1 className="text-xl font-bold">Tifton ↔ Atlanta Grocery Run</h1>
+          <h1 className="text-xl font-bold">Tifton Community Grocery Run</h1>
           <p className="mt-1 text-sm opacity-70">
             Send your shopping list for the next trip.
           </p>
