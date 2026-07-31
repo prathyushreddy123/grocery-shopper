@@ -4,6 +4,7 @@ import { getUserContext } from "@/lib/context";
 import { prisma } from "@/lib/prisma";
 import { logout } from "@/app/actions/auth";
 import { updateAddress } from "@/app/actions/profile";
+import { getLastTripItems } from "@/app/actions/items";
 import { isOrderingOpen, effectiveStatus } from "@/lib/trip";
 import { seatsTaken } from "@/lib/rides";
 import AppNav from "@/app/AppNav";
@@ -20,6 +21,7 @@ import ItemRow from "./ItemRow";
 import InfoNotes from "@/app/InfoNotes";
 import Countdown from "./Countdown";
 import StatusTracker from "./StatusTracker";
+import RepeatLastTrip from "./RepeatLastTrip";
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString("en-US", {
@@ -46,6 +48,8 @@ export default async function ListPage() {
   });
 
   const ordering = isOrderingOpen(trip);
+  // Items from this household's previous list that aren't on the current one.
+  const lastTrip = ordering ? await getLastTripItems() : null;
   const eff = effectiveStatus(trip);
   // CLOSED sits past the tracker; show it as fully Delivered.
   const trackerStatus: TripStatus = eff === "CLOSED" ? "DELIVERED" : eff;
@@ -139,6 +143,9 @@ export default async function ListPage() {
             </button>
           </form>
         </div>
+
+        {/* One tap to re-add last trip's basket */}
+        {lastTrip && <RepeatLastTrip items={lastTrip.items} />}
 
         {/* Status tracker (locked trips only) */}
         {!ordering && (
