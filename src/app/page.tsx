@@ -29,7 +29,8 @@ export default async function EntryPage({
           <div className="text-4xl mb-2">🛒</div>
           <h1 className="text-xl font-bold">Tifton Community Grocery Run</h1>
           <p className="mt-1 text-sm opacity-70">
-            Send your shopping list for the next trip.
+            Indian &amp; Nepali groceries, meat &amp; prepared food — for Tifton
+            families and neighbors.
           </p>
         </header>
 
