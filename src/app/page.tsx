@@ -32,6 +32,10 @@ export default async function EntryPage({
             Indian &amp; Nepali groceries, meat &amp; prepared food — for Tifton
             families and neighbors.
           </p>
+          <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+            Skip the long drive and shopping — save that time and effort for
+            your family and the things that matter.
+          </p>
         </header>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
