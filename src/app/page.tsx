@@ -27,13 +27,14 @@ export default async function EntryPage({
       <div className="w-full max-w-sm">
         <header className="mb-8 text-center">
           <div className="text-4xl mb-2">🛒</div>
-          <h1 className="text-xl font-bold">Tifton Community Grocery Run</h1>
-          <p className="mt-1 text-sm opacity-70">
+          <h1 className="text-2xl font-bold">TiftonWala</h1>
+          <p className="text-sm font-medium opacity-80">Groceries &amp; Rides</p>
+          <p className="mt-2 text-lg font-bold italic text-emerald-700 dark:text-emerald-300">
+            We drive, so you don&apos;t have to.
+          </p>
+          <p className="mt-2 text-xs opacity-70">
             Indian &amp; Nepali groceries, meat &amp; prepared food — for Tifton
             families and neighbors.
-          </p>
-          <p className="mt-2 text-xs font-semibold italic text-emerald-700 dark:text-emerald-300">
-            We drive, so you don&apos;t have to.
           </p>
         </header>
 

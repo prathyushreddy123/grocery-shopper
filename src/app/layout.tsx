@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tifton Community Grocery Run",
+  title: "TiftonWala — Groceries & Rides",
   description: "Community grocery runs and rides for Tifton households.",
 };
 
