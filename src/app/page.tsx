@@ -33,7 +33,7 @@ export default async function EntryPage({
             families and neighbors.
           </p>
           <p className="mt-2 text-xs font-semibold italic text-emerald-700 dark:text-emerald-300">
-            Less driving, more family time.
+            We drive, so you don&apos;t have to.
           </p>
         </header>
 
