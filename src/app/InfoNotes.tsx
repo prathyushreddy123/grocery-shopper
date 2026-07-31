@@ -17,7 +17,7 @@ export default function InfoNotes() {
       <p className="mt-2 flex gap-2">
         <span aria-hidden>🛍️</span>
         <span>
-          Each trip I shop at <b>Costco</b>, <b>Patel Brothers</b>,{" "}
+          Each trip we shop at <b>Costco</b>, <b>Patel Brothers</b>,{" "}
           <b>Desi District</b>, <b>Al Madina Halal Market</b>, and{" "}
           <b>any other place on demand</b> — for your Indian &amp; Nepali
           groceries, fresh halal meat, and prepared food.

@@ -127,7 +127,7 @@ export default async function ListPage() {
             </label>
             {!household.address && (
               <p className="text-xs text-accent-ink">
-                Add your address so I know where to drop off your order.
+                Add your address so we know where to drop off your order.
               </p>
             )}
             <textarea

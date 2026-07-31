@@ -69,7 +69,9 @@ export default async function EntryPage({
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">
                   Delivery address{" "}
-                  <span className="opacity-60">(where should I drop off?)</span>
+                  <span className="opacity-60">
+                    (where should we drop off?)
+                  </span>
                 </span>
                 <textarea
                   name="address"
